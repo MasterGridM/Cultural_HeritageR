@@ -1,0 +1,129 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>3D Models Museum</title>
+  <!-- Import model-viewer library -->
+  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 20px;
+    }
+    #modelContainer {
+      margin: 20px auto;
+      width: 800px;
+    }
+    model-viewer {
+      width: 800px;
+      height: 600px;
+      background-color: #f0f0f0;
+    }
+    .info-container {
+      margin-top: 20px;
+    }
+    .toggle-button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin: 0 10px;
+      cursor: pointer;
+    }
+    #navigation {
+      margin-top: 20px;
+    }
+    #navigation button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin: 0 10px;
+      cursor: pointer;
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>3D Models Museum</h1>
+  <div id="modelContainer">
+   
+    <model-viewer id="viewer" src="" alt="3D model" auto-rotate camera-controls shadow-intensity="1"></model-viewer>
+    <div class="info-container">
+      
+      <h2 id="modelTitle"></h2>
+      <div>
+        <button class="toggle-button" onclick="toggleDescription()">Show Description</button>
+        <button class="toggle-button" onclick="toggleTimeline()">Show Timeline</button>
+      </div>
+      <div id="descriptionDiv" class="hidden">
+        <p id="modelDescription"></p>
+      </div>
+      <div id="timelineDiv" class="hidden">
+        <p id="modelTimeline"></p>
+      </div>
+    </div>
+  </div>
+  <div id="navigation">
+    <button id="prevButton" onclick="prevModel()">Previous</button>
+    <button id="nextButton" onclick="nextModel()">Next</button>
+  </div>
+  
+  <script>
+    var modelsData = {{ models | tojson }};
+    var currentIndex = 0;
+    
+    function updateViewer() {
+      if (modelsData.length === 0) return;
+      var model = modelsData[currentIndex];
+      var viewer = document.getElementById('viewer');
+   
+      viewer.setAttribute('src', '/models/' + model.filename);
+      
+      document.getElementById('modelTitle').textContent = model.proper_name;
+      
+      document.getElementById('descriptionDiv').classList.add('hidden');
+      document.getElementById('timelineDiv').classList.add('hidden');
+      
+      document.getElementById('modelDescription').textContent = "Description: " + model.description;
+      document.getElementById('modelTimeline').textContent = "Timeline/Era: " + model.timeline;
+      
+      document.getElementById('prevButton').disabled = (currentIndex === 0);
+      document.getElementById('nextButton').disabled = (currentIndex === modelsData.length - 1);
+    }
+    
+    function nextModel() {
+      if (currentIndex < modelsData.length - 1) {
+        currentIndex++;
+        updateViewer();
+      }
+    }
+    
+    function prevModel() {
+      if (currentIndex > 0) {
+        currentIndex--;
+        updateViewer();
+      }
+    }
+    
+    function toggleDescription() {
+      var descDiv = document.getElementById('descriptionDiv');
+      if (descDiv.classList.contains('hidden')) {
+        descDiv.classList.remove('hidden');
+      } else {
+        descDiv.classList.add('hidden');
+      }
+    }
+    
+    function toggleTimeline() {
+      var timelineDiv = document.getElementById('timelineDiv');
+      if (timelineDiv.classList.contains('hidden')) {
+        timelineDiv.classList.remove('hidden');
+      } else {
+        timelineDiv.classList.add('hidden');
+      }
+    }
+    
+    window.onload = updateViewer;
+  </script>
+</body>
+</html>
